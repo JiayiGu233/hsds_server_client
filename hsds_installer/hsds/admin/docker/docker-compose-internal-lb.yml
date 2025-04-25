@@ -1,0 +1,74 @@
+services:
+  head:
+    platform: "linux/amd64"
+    image: hdfgroup/hsds
+    restart: ${RESTART_POLICY}
+    mem_limit: ${HEAD_RAM}
+    environment:
+      - TARGET_SN_COUNT=${SN_CORES}
+      - TARGET_DN_COUNT=${DN_CORES}
+      - NODE_TYPE=head_node
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+    ports:
+      - ${HEAD_PORT}
+    logging:
+     options:
+        max-size: "5m"
+        max-file: "5"
+    volumes:
+      - ${PWD}/admin/config/:/config/
+  dn:
+    platform: "linux/amd64"
+    image: hdfgroup/hsds
+    restart: ${RESTART_POLICY}
+    mem_limit: ${DN_RAM}
+    environment:
+      - DN_PORT=${DN_PORT}
+      - NODE_TYPE=dn
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+    ports:
+      - ${DN_PORT}
+    logging:
+     options:
+        max-size: "5m"
+        max-file: "5"
+    depends_on:
+      - head
+    volumes:
+      - ${PWD}/admin/config/:/config/
+  sn:
+    platform: "linux/amd64"
+    image: hdfgroup/hsds
+    restart: ${RESTART_POLICY}
+    mem_limit: ${SN_RAM}
+    environment:
+      - SN_PORT=${SN_PORT}
+      - NODE_TYPE=sn
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - HSDS_ENDPOINT=${HSDS_ENDPOINT}
+
+    ports:
+      - ${SN_PORT_RANGE}:${SN_PORT}
+    logging:
+     options:
+        max-size: "5k"
+        max-file: "5"
+    depends_on:
+      - head
+    volumes:
+      - ${PWD}/admin/config/:/config/
+  logs:
+    image: mdsol/logspout
+    restart: always
+    command: cloudwatch://auto
+    container_name: logspout
+    hostname: hsds_${PUBLIC_DNS}
+    volumes:
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+    logging:
+     options:
+        max-size: "50m"
+        max-file: "5"

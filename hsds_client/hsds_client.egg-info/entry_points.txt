@@ -1,0 +1,2 @@
+[console_scripts]
+hscli = hsds_client.cli:main

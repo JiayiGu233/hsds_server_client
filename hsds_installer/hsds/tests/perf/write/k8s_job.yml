@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hsds-write-test 
+spec:
+  parallelism: 1
+  template:
+    spec:
+      containers:
+      - name: write 
+        image: hdfgroup/hswritetest:v0.8 
+        resources:
+            requests:
+              memory: "128M"
+            limits:
+              memory: "256M"
+        volumeMounts:
+        env:
+        - name: HS_ENDPOINT
+          value: http://hsds.hdflab.svc.cluster.local
+        - name: HS_WRITE_TEST_DOMAIN
+          value: hdf5://home/perftest/write.h5
+        - name: HS_BUCKET
+          value:  
+        - name: LOG_LEVEL
+          value: WARNING
+        - name: HS_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: h5user-cred
+              key: hs_username
+        - name: HS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: h5user-cred
+              key: hs_password
+      restartPolicy: Never
+  backoffLimit: 4
+
+

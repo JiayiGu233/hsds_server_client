@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: hsds
+  name: hsds
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hsds
+  template:
+    metadata:
+      labels:
+        app: hsds
+    spec:
+      containers:
+        - name: sn
+          image: hdfgroup/hsds:0.7.0 
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: "1G"
+            limits:
+              memory: "1G"
+          volumeMounts:
+            - name: accounts
+              mountPath: "/config/passwd.txt"
+              subPath: passwd.txt
+            - name: config
+              mountPath: "/config/config.yml"
+              subPath: config.yml
+            - name: override
+              mountPath: "/config/override.yml"
+              subPath: override.yml
+          ports:
+            -
+              containerPort: 5101
+          env:
+          - name: NODE_TYPE
+            value: sn
+          - name: HEAD_PORT
+            value: "0" # no head container
+          - name: AZURE_CONNECTION_STRING
+            valueFrom:
+              secretKeyRef:
+                name: azure-conn-str
+                key: az_conn_str
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          livenessProbe:
+            httpGet:
+              path: /info
+              port: 5101
+            initialDelaySeconds: 5
+            periodSeconds: 60
+        - name: dn
+          image: hdfgroup/hsds:0.7.0
+          imagePullPolicy: IfNotPresent 
+          resources:
+            requests:
+              memory: "2G"
+            limits:
+              memory: "2G"
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/sbin/killall5", "-15"]
+          volumeMounts:
+          - name: config
+            mountPath: "/config/config.yml"
+            subPath: config.yml
+          - name: override
+            mountPath: "/config/override.yml"
+            subPath: override.yml
+          ports:
+            -
+              containerPort: 6101
+          env:
+          - name: NODE_TYPE
+            value: dn
+          - name: HEAD_PORT
+            value: "0" # no head container
+          - name: AZURE_CONNECTION_STRING
+            valueFrom:
+              secretKeyRef:
+                name: azure-conn-str
+                key: az_conn_str
+          livenessProbe:
+            httpGet:
+              path: /info
+              port: 6101
+            initialDelaySeconds: 5
+            periodSeconds: 60
+      volumes:
+      - name: accounts
+        secret:
+          secretName: user-password
+      - name: config
+        configMap:
+          name: hsds-config
+      - name: override
+        configMap:
+          name: hsds-override
+        

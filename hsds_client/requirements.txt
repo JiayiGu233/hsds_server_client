@@ -1,0 +1,5 @@
+hsds-client
+numpy
+requests
+typer
+h5pyd

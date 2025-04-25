@@ -1,0 +1,1 @@
+{"owner": "admin", "acls": {"admin": {"create": true, "read": true, "update": true, "delete": true, "readACL": true, "updateACL": true}, "default": {"create": false, "read": true, "update": false, "delete": false, "readACL": false, "updateACL": false}}, "created": 1741141008.5140207, "lastModified": 1741141008.5140207}

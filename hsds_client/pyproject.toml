@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hsds-client"
+version = "0.1.0"
+description = "Internal SDK for accessing HSDS .strc files"
+authors = [{ name="Jiayi", email="jiayi.gu@sioux.asia" }]
+dependencies = [
+  "h5pyd",
+  "numpy",
+  "requests",
+  "typer"
+]
+
+[project.scripts]
+hscli = "hsds_client.cli:main"

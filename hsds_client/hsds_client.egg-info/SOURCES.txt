@@ -1,0 +1,12 @@
+pyproject.toml
+setup.py
+hsds_client/__init__.py
+hsds_client/cli.py
+hsds_client/config.py
+hsds_client/core.py
+hsds_client.egg-info/PKG-INFO
+hsds_client.egg-info/SOURCES.txt
+hsds_client.egg-info/dependency_links.txt
+hsds_client.egg-info/entry_points.txt
+hsds_client.egg-info/requires.txt
+hsds_client.egg-info/top_level.txt

@@ -1,0 +1,4 @@
+h5pyd
+numpy
+requests
+typer
